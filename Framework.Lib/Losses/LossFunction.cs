@@ -2,5 +2,5 @@
 
 public abstract class LossFunction
 {
-    public abstract double Calculate(double[,] Predicted, double[,] Real);
+    public abstract double Calculate(double[,] predicted, double[,] real);
 }

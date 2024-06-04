@@ -2,9 +2,9 @@
 
 public static class MatrixUtility
 {
-    public static double[,] Multipliy(this double[,] a, double[,] b)
+    public static double[,] Multipliy(this double[,] a, double[,] b, bool addOnes = true)
     {
-        if (a.GetLength(1) != b.GetLength(0))
+        if (a.GetLength(1) != b.GetLength(0) + Convert.ToInt32(addOnes))
         {
             throw new InvalidOperationException($"Imposible to multiply matrices. Sizes are ({a.GetLength(0)}, {a.GetLength(1)}) and ({b.GetLength(0)}, {b.GetLength(1)})");
         }
@@ -14,10 +14,10 @@ public static class MatrixUtility
         {
             for (int j = 0; j < result.GetLength(1); j++)
             {
-                double elem = 0;
-                for (int k = 0; k < a.GetLength(1); k++)
+                double elem = addOnes ? a[i, 0] : 0;
+                for (int k = 0; k < b.GetLength(0); k++)
                 {
-                    elem += a[i, k] * b[k, j];
+                    elem += a[i, k + Convert.ToInt32(addOnes)] * b[k, j];
                 }
 
                 result[i, j] = elem;
@@ -29,9 +29,16 @@ public static class MatrixUtility
 
     public static double[,] Multiply(this double[,] a, double b)
     {
-        var c = new double[1, 1];
-        c[0, 0] = b;
-        return Multipliy(a, c);
+        var c = new double[a.GetLength(0), a.GetLength(1)];
+        for (int i = 0; i < c.GetLength(0); i++)
+        {
+            for (int j = 0;  j < c.GetLength(1); j++)
+            {
+                c[i, j] = b * a[i, j];
+            }
+        }
+
+        return c;
     }
 
     public static double[,] Add(this double[,] a, double[,] b)

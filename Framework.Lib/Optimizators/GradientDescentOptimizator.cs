@@ -1,6 +1,6 @@
 ﻿namespace Framework.Lib.Optimizators;
 
-internal class GradientDescentOptimizator : IOptimizator
+public class GradientDescentOptimizator : IOptimizator
 {
     public double Alpha { get; set; } = 1e-4;
 
