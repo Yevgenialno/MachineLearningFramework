@@ -2,7 +2,7 @@
 
 public static class MatrixUtility
 {
-    public static double[,] Multipliy(this double[,] a, double[,] b, bool addOnes = true)
+    public static double[,] Multiply(this double[,] a, double[,] b, bool addOnes = true)
     {
         if (a.GetLength(1) != b.GetLength(0) + Convert.ToInt32(addOnes))
         {
@@ -39,6 +39,34 @@ public static class MatrixUtility
         }
 
         return c;
+    }
+
+    public static double[,] ElementWise(this double[,] a, Func<double, double> f)
+    {
+        var result = new double[a.GetLength(0), a.GetLength(1)];
+        for (int i = 0; i < result.GetLength(0); i++)
+        {
+            for (int j = 0; j < result.GetLength(1); j++)
+            {
+                result[i, j] = f(a[i, j]);
+            }
+        }
+
+        return result;
+    }
+
+    public static double[,] ElementWise(this double[,] a, double[,] b, Func<double, double, double> f)
+    {
+        var result = new double[a.GetLength(0), a.GetLength(1)];
+        for (int i = 0; i < result.GetLength(0); i++)
+        {
+            for (int j = 0; j < result.GetLength(1); j++)
+            {
+                result[i, j] = f(a[i, j], b[i, j]);
+            }
+        }
+
+        return result;
     }
 
     public static double[,] Add(this double[,] a, double[,] b)

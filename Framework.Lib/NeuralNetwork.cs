@@ -10,7 +10,9 @@ public class NeuralNetwork
 
     public required ActivationFunction Activation { get; set; }
 
-    public required LossFunction LossFunction {  get; set; } 
+    public required LossFunction LossFunction { get; set; }
+
+    public ActivationFunction? TopLayerActivation { get; set; }
 
     public double[][,] Weights { get; }
 
@@ -25,7 +27,9 @@ public class NeuralNetwork
             {
                 for (int k = 0; k < layerSizes[i] + 1; k++)
                 {
-                    Weights[i][j, k] = (r.NextDouble() * 2) - 1;
+                    Weights[i][j, k] =
+                        //-r.NextDouble();
+                        (2 * r.NextDouble()) - 1;
                 }
             }
         }
@@ -36,11 +40,17 @@ public class NeuralNetwork
         double[,] previousLayerOutput = x;
         for (int l = 0; l < Weights.Length - 1; l++)
         {
-            double[,] layerOutput = Activation.Forward(Weights[l].Multipliy(previousLayerOutput));
+            double[,] layerOutput = Activation.Forward(Weights[l].Multiply(previousLayerOutput));
             previousLayerOutput = layerOutput;
         }
 
-        return Weights[^1].Multipliy(previousLayerOutput);
+        var result = Weights[^1].Multiply(previousLayerOutput);
+        if (TopLayerActivation is not null)
+        {
+            result = TopLayerActivation.Forward(result);
+        }
+
+        return result;
     }
 
     public double Loss(double[,] x, double[,] y)
@@ -48,7 +58,7 @@ public class NeuralNetwork
         return LossFunction.Calculate(Predict(x), y);
     }
 
-    private double[][,] GetDerivativesNumericall(double[,] x, double[,] y, double epsilon = 1e-4)
+    private double[][,] GetDerivativesNumerical(double[,] x, double[,] y, double epsilon = 1e-10)
     {
         var derivatives = new double[Weights.Length][,];
         for (int i = 0; i < Weights.Length; i++)
@@ -73,12 +83,16 @@ public class NeuralNetwork
 
     public void Fit(double[,] x, double[,] y, int epochCount = 5)
     {
+        int writeLossEpochsInterval = Math.Max(epochCount / 10, 1);
         for (int i = 0; i < epochCount; i++)
         {
-            var derivativaes = GetDerivativesNumericall(x, y);
+            var derivativaes = GetDerivativesNumerical(x, y);
             Optimizator.Optimize(Weights, derivativaes);
             var loss = Loss(x, y);
-            Console.WriteLine($"Loss after epoch {i}: {loss}");
+            if (i % writeLossEpochsInterval == 0)
+            {
+                Console.WriteLine($"Loss after epoch {i}: {loss}");
+            }
         }
     }
 }
